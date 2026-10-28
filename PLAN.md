@@ -27,6 +27,9 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
 - Sensitive values the API never returns (passwords, provider secrets, hook secrets) are kept from
   prior state on Read and documented as write-only on the API side.
 - No bullet widens scope into neighbouring resources; file a follow-up bullet instead.
+- The upstream Go client is generated from a staging spec (`api.supabase.green/api/v1-yaml`).
+  Before building on a client method added after `pkg v1.2.3`, confirm the operation exists in
+  production (`https://api.supabase.com/api/v1-json`) and say so in the PR.
 
 ## Phase 0: client and dependency unblocker
 
@@ -45,7 +48,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
   - `CONTRIBUTING.md` gains a "Bumping the Management API client" section: the exact
     `go mod edit -replace github.com/supabase/cli/pkg=github.com/supabase/cli/apps/cli-go/pkg@develop && go mod tidy`
     procedure, the note that Dependabot cannot bump a `replace`, and the expectation that spec
-    syncs may rename generated types.
+    syncs may rename generated types and track staging ahead of production.
 - [ ] Generate a provider-local `/v2` client in `internal/apiv2` (after: 1)
   - `internal/apiv2/v2-openapi.json` is a committed snapshot of `https://api.supabase.com/api/v2-json`;
     `internal/apiv2/{types,client}.gen.go` are produced from it by `oapi-codegen` (same major as
@@ -58,7 +61,10 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
     exposes both clients to resources through one provider-data struct, and every existing
     resource/data source still compiles against it.
   - A unit test proves the v2 client sends `Authorization: Bearer` and retries a GET 502.
-- [ ] Repo hygiene: release and contributor docs match the code
+- [ ] Repo hygiene: CI Terraform version, release and contributor docs match the code
+  - `.github/workflows/test.yml` runs the `test` job on Terraform `1.14.x` (write-only
+    arguments need 1.11+, ephemeral resources 1.10+, actions 1.14+); `docs/index.md` states the
+    minimum supported Terraform version.
   - `main.go` declares `commit` and `main.go` reports it alongside `version`, or
     `.goreleaser.yml` stops setting `main.commit`; `goreleaser build --snapshot --clean` passes.
   - `CONTRIBUTING.md` and `GNUmakefile` comments no longer claim acceptance tests create real,
@@ -81,7 +87,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
     time are checked before any `V1BulkCreateSecrets` call.
   - Tests cover plan-time rejection, apply-time rejection with an unknown-at-plan value, and
     that the happy path is unchanged.
-- [ ] Port upstream PR #364: write-only `database_password_wo` on `supabase_project` (after: 1)
+- [ ] Port upstream PR #364: write-only `database_password_wo` on `supabase_project` (after: 3, 4)
   - Closes upstream issue #353. `database_password` becomes Optional; `database_password_wo`
     (Optional, Sensitive, WriteOnly) and `database_password_wo_version` (Optional) are added with
     `ExactlyOneOf(database_password, database_password_wo)`.
@@ -89,7 +95,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
     `database_password_wo_version` changes; the write-only value is never written to state or plan.
   - `docs/resources/project.md` explains both forms and that `database_password` is stored in
     state; tests cover create, rotation via version bump, and the mutual-exclusion validator.
-    CI runs Terraform `1.11+` for write-only support.
+    (Terraform `1.14.x` from bullet 3).
 - [ ] Port upstream PRs #369 and #381: `supabase_apikey` manages publishable keys, custom roles, and keys deleted out of band (after: 1)
   - Closes upstream issue #359. `type` is Optional+Computed (`secret` default, `publishable`
     allowed, `RequiresReplace`); `secret_jwt_template.role` is Optional+Computed and sent on
@@ -170,7 +176,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
     the shared field set (`enabled`, `client_id`, `secret`, `additional_client_ids`, `url`,
     `skip_nonce_check`, `email_optional`); unsupported fields for a given provider fail
     validation. `apple.additional_client_ids` round-trips as today's `preserveAppleAdditionalClientIDs`.
-- [ ] Deprecate `supabase_settings` (after: 13, 14, 15, 16, 17, 18, 19)
+- [ ] Deprecate `supabase_settings` (after: 10, 13, 14, 15, 16, 17, 18, 19)
   - The resource and each attribute carry a `DeprecationMessage` naming its replacement;
     `docs/guides/settings-migration.md` shows the `import`/`removed` flow for each category.
   - The resource keeps working; no existing test is deleted.
@@ -194,19 +200,23 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
   - SAML provider with `metadata_url` or `metadata_xml` (ExactlyOneOf), `domains`,
     `attribute_mapping` (normalized JSON), `name_id_format`; full CRUD via the
     `/config/auth/sso/providers` ops; import by `<project_ref>/<provider_id>`.
-- [ ] Port upstream PR #365: `supabase_apikey` ephemeral resource (after: 7)
+- [ ] Port upstream PR #365: `supabase_apikey` ephemeral resource (after: 3, 7)
   - Opens a short-lived secret key and closes it on `Close`; supports both key types; never
     touches state; docs note the Terraform version requirement.
-- [ ] Port upstream PR #367: `supabase_vault_secret` resource via `V1RunAQuery` (after: 1)
+- [ ] Port upstream PR #367: `supabase_vault_secret` resource via `V1RunAQuery` (after: 3)
   - Closes upstream issue #360. Create/Update/Delete run parameterised `vault.create_secret`,
     `vault.update_secret`, `DELETE FROM vault.secrets` statements; `Read` resolves by id, falling
     back to name on import (`<project_ref>/<name>`); `secret` is Sensitive and never logged in a
-    diagnostic; the docs state that secret values transit the Management API `database/query`
-    endpoint.
+    diagnostic, with `secret_wo`/`secret_wo_version` offered as the write-only alternative
+    (same shape as bullet 6); the docs state that secret values transit the Management API
+    `database/query` endpoint.
 - [ ] `supabase_storage_bucket` resource via the project Storage API (after: 1)
   - Uses `github.com/supabase/cli/pkg/storage` against `https://<project_ref>.supabase.co` (or
     the endpoint-derived host) authenticated with a `secret` (or legacy `service_role`) key
-    fetched through `V1GetProjectApiKeys` with reveal; a clear error when neither exists.
+    fetched through `V1GetProjectApiKeys` with reveal; a clear error when neither exists. The
+    resolved key and Storage client are cached per `project_ref` for the provider process
+    (single-flight), so a refresh of N buckets costs one Management API call per project, and
+    `Read` fetches the single bucket (`GET /storage/v1/bucket/{id}`) rather than listing all.
   - Attributes: `name` (RequiresReplace), `public`, `file_size_limit`, `allowed_mime_types`;
     import by `<project_ref>/<name>`; tests mock both the Management API and the Storage API.
 - [ ] `supabase_realtime_config`, `supabase_backup_schedule` and `supabase_pgsodium_config` resources (after: 1)
@@ -251,7 +261,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
 - [ ] `supabase_advisors` data source (after: 1)
   - `kind` (`security`|`performance`) returns lint results from the two `/advisors` ops for use
     in CI gates.
-- [ ] Project lifecycle actions: `supabase_project_pause`, `supabase_project_restore`, `supabase_project_restart` (after: 1)
+- [ ] Project lifecycle actions: `supabase_project_pause`, `supabase_project_restore`, `supabase_project_restart` (after: 3)
   - Implemented with the plugin-framework `action` package; each invokes the corresponding
     `V1*AProject` op and waits for a terminal status with a configurable timeout; docs state the
     minimum Terraform version and that actions are not tracked in state.
