@@ -74,7 +74,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
     exposes both clients to resources through one provider-data struct, and every existing
     resource/data source still compiles against it.
   - A unit test proves the v2 client sends `Authorization: Bearer` and retries a GET 502.
-- [ ] Repo hygiene: CI Terraform version, release and contributor docs match the code
+- [x] Repo hygiene: CI Terraform version, release and contributor docs match the code
   - `.github/workflows/test.yml` runs the `test` job on Terraform `1.14.x` (write-only
     arguments need 1.11+, ephemeral resources 1.10+, actions 1.14+); `docs/index.md` states the
     minimum supported Terraform version.
