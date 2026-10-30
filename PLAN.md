@@ -30,6 +30,19 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
 - The upstream Go client is generated from a staging spec (`api.supabase.green/api/v1-yaml`).
   Before building on a client method added after `pkg v1.2.3`, confirm the operation exists in
   production (`https://api.supabase.com/api/v1-json`) and say so in the PR.
+- Upstream PR and issue numbers (`#NNN`) refer to `supabase/terraform-provider-supabase`. Read
+  them with `gh pr view NNN --repo supabase/terraform-provider-supabase` and
+  `gh pr diff NNN --repo supabase/terraform-provider-supabase`; never without `--repo`. A ported
+  commit ends with one `Co-authored-by: <name or login> <ID+login@users.noreply.github.com>`
+  trailer per upstream PR author (`gh api users/<login> --jq .id` gives the ID).
+- This fork has no PR CI. Before merging, run all of the following in the worktree (each wrapped
+  in the plan-loop lock) and list them in the PR body:
+  `go mod tidy && git diff --exit-code go.mod go.sum`, `go build ./...`, `golangci-lint run`,
+  `go generate ./... && git diff --exit-code`, `TF_ACC=1 go test -cover ./internal/provider/`,
+  and `make generate-json`. Commit the resulting `docs/schema.json`; upstream's bot does this in
+  CI, but it does not run here.
+- Local tools come from the parent-directory `mise.toml` (Go 1.26.10, Terraform 1.17.1,
+  golangci-lint 2.15.0, goreleaser 2.18.2). Do not add mise or tool-version files to the repo.
 
 ## Phase 0: client and dependency unblocker
 
