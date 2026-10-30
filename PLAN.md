@@ -46,7 +46,7 @@ anywhere. Upstream has open PRs for most known bugs; those are ported here with 
 
 ## Phase 0: client and dependency unblocker
 
-- [ ] Switch to the upstream subdirectory module via `replace` and migrate the `Output` renames
+- [x] Switch to the upstream subdirectory module via `replace` and migrate the `Output` renames
   - `go.mod` keeps `require github.com/supabase/cli/pkg v1.2.3` and adds
     `replace github.com/supabase/cli/pkg => github.com/supabase/cli/apps/cli-go/pkg v0.0.0-20261028134026-c72507449430`
     (or the current `@develop` pseudo-version at implementation time). No fork, no vendoring.

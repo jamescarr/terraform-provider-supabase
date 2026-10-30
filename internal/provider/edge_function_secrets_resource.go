@@ -441,7 +441,7 @@ func createOrUpdateEdgeFunctionSecrets(ctx context.Context, data *EdgeFunctionSe
 // Returns (secrets, diagnostics) where:
 // - secrets is the list from the API (nil if error or not found)
 // - diagnostics contains any errors encountered.
-func fetchEdgeFunctionSecrets(ctx context.Context, projectRef string, client *api.ClientWithResponses) (*[]api.SecretResponse, diag.Diagnostics) {
+func fetchEdgeFunctionSecrets(ctx context.Context, projectRef string, client *api.ClientWithResponses) (*[]api.SecretResponseOutput, diag.Diagnostics) {
 	httpResp, err := client.V1ListAllSecretsWithResponse(ctx, projectRef)
 	if err != nil {
 		msg := fmt.Sprintf("Unable to read edge function secrets, got error: %s", err)

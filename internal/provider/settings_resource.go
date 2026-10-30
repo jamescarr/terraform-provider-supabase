@@ -505,7 +505,7 @@ func updateDatabaseConfig(ctx context.Context, plan *SettingsResourceModel, clie
 }
 
 // decodeDatabaseConfig decodes a postgres config API response as a generic JSON
-// object instead of the generated api.PostgresConfigResponse struct.
+// object instead of the generated api.PostgresConfigResponseOutput struct.
 //
 // The generated request and response structs only know the parameters that
 // existed when the API client was generated, and encoding/json silently drops
@@ -735,7 +735,7 @@ type LocalAuthConfig struct {
 
 // convertAuthResponse converts AuthConfigResponse to UpdateAuthConfigBody using JSON marshaling.
 // This ensures we use consistent JSON tags (with omitempty) for marshaling.
-func convertAuthResponse(ctx context.Context, resp *api.AuthConfigResponse) api.UpdateAuthConfigBody {
+func convertAuthResponse(ctx context.Context, resp *api.AuthConfigResponseOutput) api.UpdateAuthConfigBody {
 	// Marshal the response to JSON and unmarshal into UpdateAuthConfigBody
 	// This handles field mapping and type conversions automatically
 	data, err := json.Marshal(resp)

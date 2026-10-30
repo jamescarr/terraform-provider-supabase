@@ -19,7 +19,7 @@ func TestAccNetworkBansDataSource(t *testing.T) {
 		Post(networkBansApiPath).
 		Times(3).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkBanResponse{
+		JSON(api.NetworkBanResponseOutput{
 			BannedIpv4Addresses: []string{"1.2.3.4", "5.6.7.8"},
 		})
 
@@ -46,7 +46,7 @@ func TestAccNetworkBansDataSource_Empty(t *testing.T) {
 		Post(networkBansApiPath).
 		Times(3).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkBanResponse{})
+		JSON(api.NetworkBanResponseOutput{})
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

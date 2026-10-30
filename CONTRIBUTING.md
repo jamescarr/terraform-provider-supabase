@@ -42,6 +42,28 @@ go mod tidy
 
 Then commit the changes to `go.mod` and `go.sum`.
 
+## Bumping the Management API client
+
+The generated Management API client comes from `github.com/supabase/cli/pkg`.
+Upstream moved that module to the `apps/cli-go/pkg` subdirectory of `supabase/cli` without changing its module path, so the Go proxy cannot resolve any version newer than `v1.2.3` under the old path.
+`go.mod` therefore keeps `require github.com/supabase/cli/pkg v1.2.3` and redirects it with a `replace` directive to the subdirectory module.
+
+To bump the client:
+
+```shell
+go mod edit -replace github.com/supabase/cli/pkg=github.com/supabase/cli/apps/cli-go/pkg@develop && go mod tidy
+```
+
+Replace `develop` with a commit SHA or a branch that still contains `apps/cli-go/pkg/go.mod`.
+As of 2026-10-30 `develop` no longer does (`missing github.com/supabase/cli/apps/cli-go/pkg/go.mod at revision …`), and `main` trails the commit pinned in `go.mod`.
+In that case pin the newest commit that still carries the directory; Go rewrites it to a pseudo-version.
+
+Then fix the build and tests (`go build ./... && TF_ACC=1 go test ./internal/provider/`) and run `go generate ./...`.
+
+- Dependabot cannot bump a `replace` directive, so this is a manual step.
+- Spec syncs may rename generated types (for example the `Output` suffix on response types) and change parameter types, so expect to fix call sites.
+- The generated client tracks the staging spec ahead of production. Before building on an operation that is new in a bump, confirm it exists in `https://api.supabase.com/api/v1-json`.
+
 ## Developing the Provider
 
 If you wish to work on the provider, you'll first need [Go](https://go.dev/doc/install) installed on your machine (see [Requirements](#requirements) above).
