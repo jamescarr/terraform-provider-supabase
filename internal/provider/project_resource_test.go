@@ -23,7 +23,7 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(projectsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.V1ProjectResponse{
+		JSON(api.V1ProjectResponseOutput{
 			Id:   testProjectRef,
 			Name: "foo",
 		})
@@ -31,12 +31,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	// Disable legacy API keys after create
 	gock.New(defaultApiEndpoint).
@@ -47,12 +47,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -66,7 +66,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0CiMicro,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0CiMicro,
 						"name":  "Micro",
 						"price": map[string]any{},
 					},
@@ -78,12 +78,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -97,7 +97,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0CiMicro,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0CiMicro,
 						"name":  "Micro",
 						"price": map[string]any{},
 					},
@@ -109,12 +109,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -128,7 +128,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0CiMicro,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0CiMicro,
 						"name":  "Micro",
 						"price": map[string]any{},
 					},
@@ -149,23 +149,23 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "bar",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	// Terraform refresh after update
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "bar",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -179,7 +179,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0Ci16xlarge,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0Ci16xlarge,
 						"name":  "16XL",
 						"price": map[string]any{},
 					},
@@ -192,12 +192,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "bar",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -211,7 +211,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0Ci16xlarge,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0Ci16xlarge,
 						"name":  "16XL",
 						"price": map[string]any{},
 					},
@@ -228,12 +228,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "bar",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -247,7 +247,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0Ci16xlarge,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0Ci16xlarge,
 						"name":  "16XL",
 						"price": map[string]any{},
 					},
@@ -259,12 +259,12 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             testProjectRef,
 			Name:           "bar",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(legacyApiKeysApiPath).
@@ -278,7 +278,7 @@ func TestAccProjectResource(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0Ci16xlarge,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0Ci16xlarge,
 						"name":  "16XL",
 						"price": map[string]any{},
 					},
@@ -290,7 +290,7 @@ func TestAccProjectResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Delete(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -399,19 +399,19 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Post("/v1/projects").
 		Reply(http.StatusCreated).
-		JSON(api.V1ProjectResponse{
+		JSON(api.V1ProjectResponseOutput{
 			Id:   "mayuaycdtijbctgqbycg",
 			Name: "foo",
 		})
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg").
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             "mayuaycdtijbctgqbycg",
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New("https://api.supabase.com").
 		Put("/v1/projects/mayuaycdtijbctgqbycg/api-keys/legacy").
@@ -420,12 +420,12 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg").
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             "mayuaycdtijbctgqbycg",
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/api-keys/legacy").
@@ -439,7 +439,7 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0CiMicro,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0CiMicro,
 						"name":  "Micro",
 						"price": map[string]any{},
 					},
@@ -451,12 +451,12 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg").
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:             "mayuaycdtijbctgqbycg",
 			Name:           "foo",
 			OrganizationId: "continued-brown-smelt",
 			Region:         "us-east-1",
-			Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/api-keys/legacy").
@@ -470,7 +470,7 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 				{
 					"type": "compute_instance",
 					"variant": map[string]any{
-						"id":    api.ListProjectAddonsResponseAvailableAddonsVariantsId0CiMicro,
+						"id":    api.ListProjectAddonsResponseOutputAvailableAddonsVariantsId0CiMicro,
 						"name":  "Micro",
 						"price": map[string]any{},
 					},
@@ -482,7 +482,7 @@ func TestAccProjectResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Delete("/v1/projects/mayuaycdtijbctgqbycg").
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,

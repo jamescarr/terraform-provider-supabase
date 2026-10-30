@@ -303,9 +303,9 @@ func importAPIKeyByNameAndType(ctx context.Context, client *api.ClientWithRespon
 		)
 	}
 
-	apiKeyType := api.ApiKeyResponseType(keyType)
+	apiKeyType := api.ApiKeyResponseOutputType(keyType)
 	switch apiKeyType {
-	case api.ApiKeyResponseTypePublishable, api.ApiKeyResponseTypeSecret:
+	case api.ApiKeyResponseOutputTypePublishable, api.ApiKeyResponseOutputTypeSecret:
 	default:
 		return "", diag.NewErrorDiagnostic(
 			"Unexpected Import Identifier",
@@ -365,7 +365,7 @@ func readApiKey(ctx context.Context, state *ApiKeyResourceModel, client *api.Cli
 }
 
 func readApiKeyDatabase(ctx context.Context, state *ApiKeyResourceModel, client *api.ClientWithResponses) diag.Diagnostics {
-	httpResp, err := client.V1GetProjectApiKeyWithResponse(ctx, state.ProjectRef.ValueString(), uuid.MustParse(state.Id.ValueString()), &api.V1GetProjectApiKeyParams{Reveal: Ptr(true)})
+	httpResp, err := client.V1GetProjectApiKeyWithResponse(ctx, state.ProjectRef.ValueString(), uuid.MustParse(state.Id.ValueString()), &api.V1GetProjectApiKeyParams{Reveal: Ptr("true")})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to read apiKey database, got error: %s", err)
 		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", msg)}
@@ -423,7 +423,7 @@ func readApiKeyDatabase(ctx context.Context, state *ApiKeyResourceModel, client 
 }
 
 func createApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.ClientWithResponses) diag.Diagnostics {
-	reveal := Ptr(true)
+	reveal := Ptr("true")
 	resp, err := client.V1GetProjectApiKeysWithResponse(ctx, plan.ProjectRef.ValueString(), &api.V1GetProjectApiKeysParams{Reveal: reveal})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to read apiKeys, got error: %s", err)
@@ -438,7 +438,7 @@ func createApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.Cl
 			if key.Name == "default" {
 				if key.Type.IsSpecified() && !key.Type.IsNull() {
 					keyType := key.Type.MustGet()
-					if keyType == api.ApiKeyResponseTypePublishable {
+					if keyType == api.ApiKeyResponseOutputTypePublishable {
 						hasDefaultPublishable = true
 					}
 				}
@@ -449,7 +449,7 @@ func createApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.Cl
 	if !hasDefaultPublishable {
 		httpRespDefaultPublishable, errDefaultPublishable := client.V1CreateProjectApiKeyWithResponse(ctx, plan.ProjectRef.ValueString(), &api.V1CreateProjectApiKeyParams{Reveal: reveal}, api.CreateApiKeyBody{
 			Name:              "default",
-			Type:              api.CreateApiKeyBodyTypePublishable,
+			Type:              api.Publishable,
 			Description:       nullable.Nullable[string]{},
 			SecretJwtTemplate: nullable.Nullable[map[string]interface{}]{},
 		})
@@ -466,7 +466,7 @@ func createApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.Cl
 	// 2. Create apiKey
 	httpResp, err := client.V1CreateProjectApiKeyWithResponse(ctx, plan.ProjectRef.ValueString(), &api.V1CreateProjectApiKeyParams{Reveal: reveal}, api.CreateApiKeyBody{
 		Name:              plan.Name.ValueString(),
-		Type:              api.CreateApiKeyBodyTypeSecret,
+		Type:              api.Secret,
 		Description:       nullableDescription(plan.Description),
 		SecretJwtTemplate: nullable.NewNullableWithValue(map[string]interface{}{"role": "service_role"}),
 	})
@@ -497,13 +497,13 @@ func createApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.Cl
 
 func updateApiKey(ctx context.Context, plan *ApiKeyResourceModel, client *api.ClientWithResponses) diag.Diagnostics {
 	var secretJwtTemplate nullable.Nullable[map[string]interface{}]
-	if plan.Type.ValueString() == string(api.ApiKeyResponseTypeSecret) {
+	if plan.Type.ValueString() == string(api.ApiKeyResponseOutputTypeSecret) {
 		secretJwtTemplate = nullable.NewNullableWithValue(map[string]interface{}{"role": "service_role"})
 	} else {
 		secretJwtTemplate = nullable.Nullable[map[string]interface{}]{}
 	}
 
-	httpResp, err := client.V1UpdateProjectApiKeyWithResponse(ctx, plan.ProjectRef.ValueString(), uuid.MustParse(plan.Id.ValueString()), &api.V1UpdateProjectApiKeyParams{Reveal: Ptr(true)}, api.UpdateApiKeyBody{
+	httpResp, err := client.V1UpdateProjectApiKeyWithResponse(ctx, plan.ProjectRef.ValueString(), uuid.MustParse(plan.Id.ValueString()), &api.V1UpdateProjectApiKeyParams{Reveal: Ptr("true")}, api.UpdateApiKeyBody{
 		Name:              plan.Name.ValueStringPointer(),
 		Description:       nullableDescription(plan.Description),
 		SecretJwtTemplate: secretJwtTemplate,
@@ -530,7 +530,7 @@ func nullableDescription(description types.String) nullable.Nullable[string] {
 }
 
 func deleteApiKey(ctx context.Context, state *ApiKeyResourceModel, client *api.ClientWithResponses) diag.Diagnostics {
-	httpResp, err := client.V1DeleteProjectApiKeyWithResponse(ctx, state.ProjectRef.ValueString(), uuid.MustParse(state.Id.ValueString()), &api.V1DeleteProjectApiKeyParams{Reveal: Ptr(true)})
+	httpResp, err := client.V1DeleteProjectApiKeyWithResponse(ctx, state.ProjectRef.ValueString(), uuid.MustParse(state.Id.ValueString()), &api.V1DeleteProjectApiKeyParams{Reveal: Ptr("true")})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to delete apiKey, got error: %s", err)
 		return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", msg)}

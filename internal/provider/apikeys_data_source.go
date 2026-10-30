@@ -101,7 +101,7 @@ func (d *APIKeysDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	httpResp, err := d.client.V1GetProjectApiKeysWithResponse(ctx, data.ProjectRef.ValueString(), &api.V1GetProjectApiKeysParams{Reveal: Ptr(true)})
+	httpResp, err := d.client.V1GetProjectApiKeysWithResponse(ctx, data.ProjectRef.ValueString(), &api.V1GetProjectApiKeysParams{Reveal: Ptr("true")})
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read API keys, got error: %s", err))
 		return
@@ -125,16 +125,16 @@ func (d *APIKeysDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			keyType := key.Type.MustGet()
 
 			switch keyType {
-			case api.ApiKeyResponseTypeLegacy:
+			case api.ApiKeyResponseOutputTypeLegacy:
 				if key.Name == "anon" {
 					data.AnonKey = NullableToString(key.ApiKey)
 				}
 				if key.Name == "service_role" {
 					data.ServiceRoleKey = NullableToString(key.ApiKey)
 				}
-			case api.ApiKeyResponseTypePublishable:
+			case api.ApiKeyResponseOutputTypePublishable:
 				data.PublishableKey = NullableToString(key.ApiKey)
-			case api.ApiKeyResponseTypeSecret:
+			case api.ApiKeyResponseOutputTypeSecret:
 				obj, diags := types.ObjectValue(objectType.AttrTypes, map[string]attr.Value{
 					"name":    types.StringValue(key.Name),
 					"api_key": NullableToString(key.ApiKey),

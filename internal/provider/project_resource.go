@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -367,11 +368,11 @@ func readProject(ctx context.Context, data *ProjectResourceModel, client *api.Cl
 	}
 
 	for _, addon := range addonsResp.JSON200.SelectedAddons {
-		if addon.Type != api.ListProjectAddonsResponseSelectedAddonsTypeComputeInstance {
+		if addon.Type != api.ListProjectAddonsResponseOutputSelectedAddonsTypeComputeInstance {
 			continue
 		}
 
-		val, err := addon.Variant.Id.AsListProjectAddonsResponseSelectedAddonsVariantId0()
+		val, err := addon.Variant.Id.AsListProjectAddonsResponseOutputSelectedAddonsVariantId0()
 		if err != nil {
 			msg := fmt.Sprintf("Unable to read compute instance addon, got error: %s", err)
 			return diag.Diagnostics{diag.NewErrorDiagnostic("Client Error", msg)}
@@ -439,7 +440,7 @@ func updateInstanceSize(ctx context.Context, plan *ProjectResourceModel, client 
 
 func updateLegacyAPIKeysEnabled(ctx context.Context, plan *ProjectResourceModel, client *api.ClientWithResponses) diag.Diagnostics {
 	httpResp, err := client.V1UpdateProjectLegacyApiKeysWithResponse(ctx, plan.Id.ValueString(), &api.V1UpdateProjectLegacyApiKeysParams{
-		Enabled: plan.LegacyApiKeysEnabled.ValueBool(),
+		Enabled: strconv.FormatBool(plan.LegacyApiKeysEnabled.ValueBool()),
 	})
 	if err != nil {
 		msg := fmt.Sprintf("Unable to update legacy api keys, got error: %s", err)

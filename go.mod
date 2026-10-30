@@ -93,3 +93,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/supabase/cli/pkg => github.com/supabase/cli/apps/cli-go/pkg v0.0.0-20261028134026-c72507449430

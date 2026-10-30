@@ -25,25 +25,25 @@ import (
 	"gopkg.in/h2non/gock.v1"
 )
 
-var allServicesHealthy = []api.V1ServiceHealthResponse{
-	{Name: api.V1ServiceHealthResponseNameAuth, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNameDb, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNameDbPostgresUser, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNamePgBouncer, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNamePooler, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNameRealtime, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNameRest, Status: api.ACTIVEHEALTHY, Healthy: true},
-	{Name: api.V1ServiceHealthResponseNameStorage, Status: api.ACTIVEHEALTHY, Healthy: true},
+var allServicesHealthy = []api.V1ServiceHealthResponseOutput{
+	{Name: api.V1ServiceHealthResponseOutputNameAuth, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNameDb, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNameDbPostgresUser, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNamePgBouncer, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNamePooler, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNameRealtime, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNameRest, Status: api.ACTIVEHEALTHY, Healthy: true},
+	{Name: api.V1ServiceHealthResponseOutputNameStorage, Status: api.ACTIVEHEALTHY, Healthy: true},
 }
 
 func TestAccSettingsResource(t *testing.T) {
 	defer gock.OffAll()
-	projectStatusResponse := api.V1ProjectWithDatabaseResponse{
+	projectStatusResponse := api.V1ProjectWithDatabaseResponseOutput{
 		Id:             testProjectRef,
 		Name:           "test",
 		OrganizationId: "test-org",
 		Region:         "us-east-1",
-		Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+		Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 	}
 	exactPathMatcher := func(req *http.Request, _ *gock.Request) (bool, error) {
 		return req.URL.Path == projectApiPath, nil
@@ -61,7 +61,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -71,19 +71,19 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Put(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -92,7 +92,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(networkRestrictionsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -101,7 +101,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -109,7 +109,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Patch(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -117,7 +117,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -127,7 +127,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Patch(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -175,19 +175,19 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -196,7 +196,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -205,7 +205,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -213,7 +213,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -221,7 +221,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -231,7 +231,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -285,7 +285,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -293,25 +293,25 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Put(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("20s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("20s"),
 		})
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -320,7 +320,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(networkRestrictionsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"0.0.0.0/0"}),
 			},
@@ -328,7 +328,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"0.0.0.0/0"}),
 			},
@@ -336,7 +336,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -344,7 +344,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Patch(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           100,
@@ -352,7 +352,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           100,
@@ -360,7 +360,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:        nullable.NewNullableWithValue("http://localhost:3000"),
 			JwtExp:         nullable.NewNullableWithValue(3600),
 			SmtpAdminEmail: nullable.NewNullNullable[openapi_types.Email](),
@@ -368,7 +368,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Patch(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:        nullable.NewNullableWithValue("http://localhost:3000"),
 			JwtExp:         nullable.NewNullableWithValue(1800),
 			SmtpAdminEmail: nullable.NewNullNullable[openapi_types.Email](),
@@ -376,7 +376,7 @@ func TestAccSettingsResource(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:        nullable.NewNullableWithValue("http://localhost:3000"),
 			JwtExp:         nullable.NewNullableWithValue(1800),
 			SmtpAdminEmail: nullable.NewNullNullable[openapi_types.Email](),
@@ -540,12 +540,12 @@ func settingsConfigWithTimeouts() string {
 
 func TestAccSettingsResource_Timeouts(t *testing.T) {
 	defer gock.OffAll()
-	projectStatusResponse := api.V1ProjectWithDatabaseResponse{
+	projectStatusResponse := api.V1ProjectWithDatabaseResponseOutput{
 		Id:             "mayuaycdtijbctgqbycg",
 		Name:           "test",
 		OrganizationId: "test-org",
 		Region:         "us-east-1",
-		Status:         api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+		Status:         api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 	}
 	exactPathMatcher := func(req *http.Request, _ *gock.Request) (bool, error) {
 		return req.URL.Path == "/v1/projects/mayuaycdtijbctgqbycg", nil
@@ -569,19 +569,19 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/config/database/postgres").
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New("https://api.supabase.com").
 		Put("/v1/projects/mayuaycdtijbctgqbycg/config/database/postgres").
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/network-restrictions").
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -590,7 +590,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Post("/v1/projects/mayuaycdtijbctgqbycg/network-restrictions").
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -599,7 +599,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/postgrest").
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -607,7 +607,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Patch("/v1/projects/mayuaycdtijbctgqbycg/postgrest").
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -615,7 +615,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -625,7 +625,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Patch("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -656,13 +656,13 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/config/database/postgres").
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{
+		JSON(api.PostgresConfigResponseOutput{
 			StatementTimeout: Ptr("10s"),
 		})
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/network-restrictions").
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs:   Ptr([]string{"0.0.0.0/0"}),
 				DbAllowedCidrsV6: Ptr([]string{"::/0"}),
@@ -671,7 +671,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/postgrest").
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{
+		JSON(api.V1PostgrestConfigResponseOutput{
 			DbExtraSearchPath: "public,extensions",
 			DbSchema:          "public,storage,graphql_public",
 			MaxRows:           1000,
@@ -679,7 +679,7 @@ func TestAccSettingsResource_Timeouts(t *testing.T) {
 	gock.New("https://api.supabase.com").
 		Get("/v1/projects/mayuaycdtijbctgqbycg/config/auth").
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -732,14 +732,14 @@ func TestAccSettingsResource_SmtpPass(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -747,7 +747,7 @@ func TestAccSettingsResource_SmtpPass(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -767,7 +767,7 @@ func TestAccSettingsResource_SmtpPass(t *testing.T) {
 				strings.Contains(bodyStr, `"secret_password_123"`), nil
 		}).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -777,7 +777,7 @@ func TestAccSettingsResource_SmtpPass(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -814,8 +814,8 @@ func TestAccSettingsResource_AppleAdditionalClientIds(t *testing.T) {
 	const appleClientID = "com.example.service"
 	const appleAdditionalClientIDs = "com.example.ios,com.example.macos"
 	mergedAppleClientIDs := appleClientID + "," + appleAdditionalClientIDs
-	authResponse := func() api.AuthConfigResponse {
-		return api.AuthConfigResponse{
+	authResponse := func() api.AuthConfigResponseOutput {
+		return api.AuthConfigResponseOutput{
 			SiteUrl:                          nullable.NewNullableWithValue("http://localhost:3000"),
 			ExternalAppleEnabled:             nullable.NewNullableWithValue(true),
 			ExternalAppleClientId:            nullable.NewNullableWithValue(mergedAppleClientIDs),
@@ -831,14 +831,14 @@ func TestAccSettingsResource_AppleAdditionalClientIds(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -914,14 +914,14 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -929,11 +929,11 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(dbConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.PostgresConfigResponse{})
+		JSON(api.PostgresConfigResponseOutput{})
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"203.0.113.1/32"}),
 			},
@@ -941,7 +941,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(networkRestrictionsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"203.0.113.1/32"}),
 			},
@@ -949,11 +949,11 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{})
+		JSON(api.V1PostgrestConfigResponseOutput{})
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -963,7 +963,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Patch(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -973,7 +973,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"203.0.113.1/32"}),
 			},
@@ -981,7 +981,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -991,14 +991,14 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -1006,7 +1006,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(networkRestrictionsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"203.0.113.1/32", "198.51.100.1/32"}),
 			},
@@ -1014,7 +1014,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"203.0.113.1/32", "198.51.100.1/32"}),
 			},
@@ -1022,7 +1022,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(authConfigApiPath).
 		Reply(http.StatusOK).
-		JSON(api.AuthConfigResponse{
+		JSON(api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			MailerOtpExp:      3600,
 			MfaPhoneOtpLength: 6,
@@ -1033,7 +1033,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 		gock.New(defaultApiEndpoint).
 			Get(networkRestrictionsApiPath).
 			Reply(http.StatusOK).
-			JSON(api.NetworkRestrictionsResponse{
+			JSON(api.NetworkRestrictionsResponseOutput{
 				Config: api.NetworkRestrictionsRequest{
 					DbAllowedCidrs: Ptr([]string{"203.0.113.1/32", "198.51.100.1/32"}),
 				},
@@ -1041,7 +1041,7 @@ func TestAccSettingsResource_IgnoreChanges(t *testing.T) {
 		gock.New(defaultApiEndpoint).
 			Get(authConfigApiPath).
 			Reply(http.StatusOK).
-			JSON(api.AuthConfigResponse{
+			JSON(api.AuthConfigResponseOutput{
 				SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 				MailerOtpExp:      3600,
 				MfaPhoneOtpLength: 6,
@@ -1129,46 +1129,10 @@ func TestParseConfigNestedOmitempty(t *testing.T) {
 			"s3Protocol": {"enabled": false}
 		}
 	}`
-	apiResponse := api.StorageConfigResponse{
-		FileSizeLimit: 52428800,
-		Features: struct {
-			IcebergCatalog struct {
-				Enabled       bool `json:"enabled"`
-				MaxCatalogs   int  `json:"maxCatalogs"`
-				MaxNamespaces int  `json:"maxNamespaces"`
-				MaxTables     int  `json:"maxTables"`
-			} `json:"icebergCatalog"`
-			ImageTransformation struct {
-				Enabled bool `json:"enabled"`
-			} `json:"imageTransformation"`
-			S3Protocol struct {
-				Enabled bool `json:"enabled"`
-			} `json:"s3Protocol"`
-			VectorBuckets struct {
-				Enabled    bool `json:"enabled"`
-				MaxBuckets int  `json:"maxBuckets"`
-				MaxIndexes int  `json:"maxIndexes"`
-			} `json:"vectorBuckets"`
-		}{
-			IcebergCatalog: struct {
-				Enabled       bool `json:"enabled"`
-				MaxCatalogs   int  `json:"maxCatalogs"`
-				MaxNamespaces int  `json:"maxNamespaces"`
-				MaxTables     int  `json:"maxTables"`
-			}{Enabled: true, MaxCatalogs: 0, MaxNamespaces: 0, MaxTables: 0},
-			ImageTransformation: struct {
-				Enabled bool `json:"enabled"`
-			}{Enabled: true},
-			S3Protocol: struct {
-				Enabled bool `json:"enabled"`
-			}{Enabled: false},
-			VectorBuckets: struct {
-				Enabled    bool `json:"enabled"`
-				MaxBuckets int  `json:"maxBuckets"`
-				MaxIndexes int  `json:"maxIndexes"`
-			}{Enabled: false, MaxBuckets: 0, MaxIndexes: 0},
-		},
-	}
+	apiResponse := api.StorageConfigResponseOutput{FileSizeLimit: 52428800}
+	apiResponse.Features.IcebergCatalog.Enabled = true
+	apiResponse.Features.ImageTransformation.Enabled = true
+	apiResponse.Features.S3Protocol.Enabled = false
 
 	field := jsontypes.NewNormalizedValue(userConfig)
 	result, err := parseConfig(field, apiResponse)
@@ -1205,7 +1169,7 @@ func TestParseConfigNullablePreservesUserValue(t *testing.T) {
 		"external_apple_additional_client_ids": "com.example.app"
 	}`
 
-	apiResponse := api.AuthConfigResponse{
+	apiResponse := api.AuthConfigResponseOutput{
 		SiteUrl:                          nullable.NewNullableWithValue("http://localhost:3000"),
 		ExternalAppleAdditionalClientIds: nullable.NewNullNullable[string](),
 	}
@@ -1260,9 +1224,9 @@ resource "supabase_settings" "test" {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1324,9 +1288,9 @@ func TestAccSettingsResource_DatabaseRejectsNull(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	putCalled := false
@@ -1441,22 +1405,22 @@ func TestAccSettingsResource_WaitsForProjectActive(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusCOMINGUP,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusCOMINGUP,
 		})
 
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -1465,7 +1429,7 @@ func TestAccSettingsResource_WaitsForProjectActive(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Post(networkRestrictionsApiPath).
 		Reply(http.StatusCreated).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"0.0.0.0/0"}),
 			},
@@ -1474,7 +1438,7 @@ func TestAccSettingsResource_WaitsForProjectActive(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"0.0.0.0/0"}),
 			},
@@ -1482,7 +1446,7 @@ func TestAccSettingsResource_WaitsForProjectActive(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(networkRestrictionsApiPath).
 		Reply(http.StatusOK).
-		JSON(api.NetworkRestrictionsResponse{
+		JSON(api.NetworkRestrictionsResponseOutput{
 			Config: api.NetworkRestrictionsRequest{
 				DbAllowedCidrs: Ptr([]string{"0.0.0.0/0"}),
 			},
@@ -1567,8 +1531,8 @@ resource "supabase_settings" "test" {
 }
 `, testProjectRef)
 
-func sslEnforcementResponse(applied, database bool) api.SslEnforcementResponse {
-	resp := api.SslEnforcementResponse{AppliedSuccessfully: applied}
+func sslEnforcementResponse(applied, database bool) api.SslEnforcementResponseOutput {
+	resp := api.SslEnforcementResponseOutput{AppliedSuccessfully: applied}
 	resp.CurrentConfig.Database = database
 	return resp
 }
@@ -1594,7 +1558,7 @@ func mockServicesActiveHealth() {
 	gock.New(defaultApiEndpoint).
 		Get(postgrestApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+		JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 	gock.New(defaultApiEndpoint).
 		Get(healthApiPath).
 		Reply(http.StatusOK).
@@ -1607,9 +1571,9 @@ func TestAccSettingsResource_SslEnforcementEnable(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1643,9 +1607,9 @@ func TestAccSettingsResource_SslEnforcementUpdate(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1661,9 +1625,9 @@ func TestAccSettingsResource_SslEnforcementUpdate(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1698,9 +1662,9 @@ func TestAccSettingsResource_SslEnforcementAsyncConvergence(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 
@@ -1750,9 +1714,9 @@ func TestAccSettingsResource_SslEnforcementCapabilityGatedImport(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 
@@ -1818,9 +1782,9 @@ func TestAccSettingsResource_SslEnforcementCapabilityGatedCreate(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1848,9 +1812,9 @@ func TestAccSettingsResource_SslEnforcement400NonCapability(t *testing.T) {
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1892,9 +1856,9 @@ func TestAccSettingsResource_SslEnforcementReadIgnoresAppliedSuccessfully(t *tes
 	gock.New(defaultApiEndpoint).
 		Get(projectApiPath).
 		Reply(http.StatusOK).
-		JSON(api.V1ProjectWithDatabaseResponse{
+		JSON(api.V1ProjectWithDatabaseResponseOutput{
 			Id:     testProjectRef,
-			Status: api.V1ProjectWithDatabaseResponseStatusACTIVEHEALTHY,
+			Status: api.V1ProjectWithDatabaseResponseOutputStatusACTIVEHEALTHY,
 		})
 	mockServicesActiveHealth()
 	gock.New(defaultApiEndpoint).
@@ -1940,8 +1904,8 @@ func TestAccSettingsResource_BranchRef(t *testing.T) {
 	exactBranchProjectPath := func(req *http.Request, _ *gock.Request) (bool, error) {
 		return req.URL.Path == branchProjectApiPath, nil
 	}
-	branchAuthResponse := func(jwtExp int) api.AuthConfigResponse {
-		return api.AuthConfigResponse{
+	branchAuthResponse := func(jwtExp int) api.AuthConfigResponseOutput {
+		return api.AuthConfigResponseOutput{
 			SiteUrl:           nullable.NewNullableWithValue("http://localhost:3000"),
 			JwtExp:            nullable.NewNullableWithValue(jwtExp),
 			MailerOtpExp:      3600,
@@ -1974,14 +1938,14 @@ resource "supabase_settings" "branch" {
 		gock.New(defaultApiEndpoint).
 			Get(branchRefApiPath).
 			Reply(http.StatusOK).
-			JSON(api.BranchDetailResponse{
+			JSON(api.BranchDetailResponseOutput{
 				Ref:    testBranchRef,
-				Status: api.BranchDetailResponseStatusACTIVEHEALTHY,
+				Status: api.BranchDetailResponseOutputStatusACTIVEHEALTHY,
 			})
 		gock.New(defaultApiEndpoint).
 			Get(branchPostgrestApiPath).
 			Reply(http.StatusOK).
-			JSON(api.V1PostgrestConfigResponse{DbSchema: "public,storage,graphql_public"})
+			JSON(api.V1PostgrestConfigResponseOutput{DbSchema: "public,storage,graphql_public"})
 		gock.New(defaultApiEndpoint).
 			Get(branchHealthApiPath).
 			Reply(http.StatusOK).

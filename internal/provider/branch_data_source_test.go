@@ -21,7 +21,7 @@ func TestAccBranchDataSource(t *testing.T) {
 		Get(branchesApiPath).
 		Times(3).
 		Reply(http.StatusOK).
-		JSON([]api.BranchResponse{{Id: uuid.New()}})
+		JSON([]api.BranchResponseOutput{{Id: uuid.New()}})
 	// Run test
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
