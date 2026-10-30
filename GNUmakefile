@@ -22,7 +22,9 @@ endef
 export MAINTF
 export TERRAFORMRC
 
-# Run acceptance tests
+# Run the TF_ACC=1 provider tests. They run against gock HTTP mocks, so they
+# never create real resources or call the Supabase API. CI builds with the Go
+# version pinned in .go-version.
 .PHONY: testacc
 testacc:
 	TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 120m

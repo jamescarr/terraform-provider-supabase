@@ -5,7 +5,7 @@ General, organization-wide contribution policy lives in our [shared `.github` re
 
 ## Requirements
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
+- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.14 (the version CI tests against; write-only arguments need 1.11+, ephemeral resources 1.10+ and actions 1.14+)
 - [Go](https://go.dev/doc/install), at the version pinned in `.go-version` (see [Go version policy](#go-version-policy))
 
 ### Go version policy
@@ -50,9 +50,9 @@ To compile the provider, run `go install`. This will build the provider and put 
 
 To generate or update documentation, run `go generate`.
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
+In order to run the provider test suite, run `make testacc`.
 
-_Note:_ Acceptance tests create real resources, and often cost money to run.
+_Note:_ The `TF_ACC=1` tests run against [gock](https://github.com/h2non/gock) HTTP mocks, so they never create real resources, never call the Supabase API and cost nothing to run. CI builds and tests with the Go version pinned in `.go-version`.
 
 ```shell
 make testacc

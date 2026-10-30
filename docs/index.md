@@ -9,6 +9,10 @@ description: |-
 
 
 
+## Requirements
+
+This provider requires Terraform 1.14 or later. Write-only arguments need Terraform 1.11+, ephemeral resources 1.10+ and actions 1.14+, and 1.14 is the oldest version the provider's tests run against.
+
 ## Example Usage
 
 ```terraform
